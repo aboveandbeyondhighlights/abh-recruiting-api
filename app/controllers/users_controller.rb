@@ -1,4 +1,7 @@
 class UsersController < ApplicationController
+
+  skip_before_action :authenticate
+
   def register
     @user = User.create(user_params)
     if @user.save
@@ -6,6 +9,15 @@ class UsersController < ApplicationController
       render json: response, status: :created
     else
       render json: @user.errors, status: :bad
+    end
+  end
+
+  def login
+    user = User.find_by(email: user_params[:email])
+    if user.authenticate(user_params[:password])
+      jwt = Auth.issue({user: user.id})
+      render json: {jwt: jwt}
+    else
     end
   end
 
